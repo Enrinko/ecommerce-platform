@@ -25,6 +25,81 @@ Every task inherits these project-wide rules (exact values):
 
 ---
 
+## Execution Environment — Docker-only local dev (adaptation 2026-07-07)
+
+The host has only Node 12 (EOL) and no pnpm. Decision: **all Node/pnpm/Prisma/Nest commands run inside a `node:22` container**, never on the host. Only `git` and `docker`/`docker compose` run on the host.
+
+**Command rule:** wherever a step says `pnpm …`, `node …`, `prisma …`, or `nest …`, run it as `docker compose exec dev <that command>`. Host-level steps (`git …`, file creation, `docker compose …`) run normally. Example: `docker compose exec dev pnpm install`.
+
+**Task 0 (prerequisite to Task 1) — bring up the dev environment.** Create `docker-compose.yml` and `.npmrc` on the host, then `docker compose up -d`. This **supersedes the compose file described in Task 5** — Task 5 keeps only its Prisma/Mongoose wiring, and its verification becomes running the health e2e inside the container (a passing e2e proves both DB connections via Prisma `$connect` on init).
+
+`.npmrc` (host, repo root):
+```
+node-linker=hoisted
+```
+
+`docker-compose.yml` (host, repo root):
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: shop
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes: ["mongodata:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  dev:
+    image: node:22-bookworm-slim
+    working_dir: /app
+    command: sh -c "corepack enable && sleep infinity"
+    ports: ["3000:3000"]
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://shop:shop@postgres:5432/shop
+      MONGO_URL: mongodb://mongo:27017/shop
+      JWT_ACCESS_SECRET: dev_access_secret_min16
+      JWT_REFRESH_SECRET: dev_refresh_secret_min16
+      CORS_ORIGINS: http://localhost:3001,http://localhost:3002
+    depends_on:
+      postgres: { condition: service_healthy }
+      mongo: { condition: service_healthy }
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - pnpm_store:/root/.local/share/pnpm
+volumes:
+  pgdata:
+  mongodata:
+  node_modules:
+  pnpm_store:
+```
+
+Bring up + verify toolchain:
+```bash
+docker compose up -d
+docker compose exec dev node -v      # expect v22.x
+docker compose exec dev pnpm -v      # expect 9.x (corepack)
+```
+
+CI is unaffected: GitHub Actions uses the runner's native Node 20 via `setup-node` (Task 6). The Docker-dev workflow is local only. `.npmrc`'s `hoisted` linker applies in CI too (works fine there).
+
+---
+
 ## File Structure (created by M1)
 
 ```
