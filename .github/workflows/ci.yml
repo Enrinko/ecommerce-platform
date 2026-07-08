@@ -1,0 +1,47 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: shop
+          POSTGRES_PASSWORD: shop
+          POSTGRES_DB: shop
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U shop"
+          --health-interval 5s --health-timeout 5s --health-retries 10
+      mongo:
+        image: mongo:7
+        ports: ["27017:27017"]
+        options: >-
+          --health-cmd "mongosh --quiet --eval \"db.adminCommand('ping')\""
+          --health-interval 5s --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgresql://shop:shop@localhost:5432/shop
+      MONGO_URL: mongodb://localhost:27017/shop
+      JWT_ACCESS_SECRET: ci_access_secret_not_for_production_0123456789
+      JWT_REFRESH_SECRET: ci_refresh_secret_not_for_production_0123456789
+    steps:
+      - uses: actions/checkout@v4
+      # pnpm version comes from package.json "packageManager"; do not also set
+      # `version` here or pnpm/action-setup errors on the duplicate.
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter api exec prisma generate
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - run: pnpm --filter api test:e2e
+      - run: pnpm build

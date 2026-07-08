@@ -25,6 +25,81 @@ Every task inherits these project-wide rules (exact values):
 
 ---
 
+## Execution Environment — Docker-only local dev (adaptation 2026-07-07)
+
+The host has only Node 12 (EOL) and no pnpm. Decision: **all Node/pnpm/Prisma/Nest commands run inside a `node:22` container**, never on the host. Only `git` and `docker`/`docker compose` run on the host.
+
+**Command rule:** wherever a step says `pnpm …`, `node …`, `prisma …`, or `nest …`, run it as `docker compose exec dev <that command>`. Host-level steps (`git …`, file creation, `docker compose …`) run normally. Example: `docker compose exec dev pnpm install`.
+
+**Task 0 (prerequisite to Task 1) — bring up the dev environment.** Create `docker-compose.yml` and `.npmrc` on the host, then `docker compose up -d`. This **supersedes the compose file described in Task 5** — Task 5 keeps only its Prisma/Mongoose wiring, and its verification becomes running the health e2e inside the container (a passing e2e proves both DB connections via Prisma `$connect` on init).
+
+`.npmrc` (host, repo root):
+```
+node-linker=hoisted
+```
+
+`docker-compose.yml` (host, repo root):
+```yaml
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop
+      POSTGRES_DB: shop
+    ports: ["5432:5432"]
+    volumes: ["pgdata:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  mongo:
+    image: mongo:7
+    ports: ["27017:27017"]
+    volumes: ["mongodata:/data/db"]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  dev:
+    image: node:22-bookworm   # full image (not -slim): ships openssl so Prisma's engine detects libssl cleanly
+    working_dir: /app
+    command: sh -c "corepack enable && sleep infinity"
+    ports: ["3000:3000"]
+    environment:
+      NODE_ENV: development
+      DATABASE_URL: postgresql://shop:shop@postgres:5432/shop
+      MONGO_URL: mongodb://mongo:27017/shop
+      JWT_ACCESS_SECRET: dev_access_secret_not_for_production_0123456789
+      JWT_REFRESH_SECRET: dev_refresh_secret_not_for_production_0123456789
+      CORS_ORIGINS: http://localhost:3001,http://localhost:3002
+    depends_on:
+      postgres: { condition: service_healthy }
+      mongo: { condition: service_healthy }
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+      - pnpm_store:/root/.local/share/pnpm
+volumes:
+  pgdata:
+  mongodata:
+  node_modules:
+  pnpm_store:
+```
+
+Bring up + verify toolchain:
+```bash
+docker compose up -d
+docker compose exec dev node -v      # expect v22.x
+docker compose exec dev pnpm -v      # expect 9.x (corepack)
+```
+
+CI is unaffected: GitHub Actions uses the runner's native Node 20 via `setup-node` (Task 6). The Docker-dev workflow is local only. `.npmrc`'s `hoisted` linker applies in CI too (works fine there).
+
+---
+
 ## File Structure (created by M1)
 
 ```
@@ -710,8 +785,8 @@ NODE_ENV=development
 PORT=3000
 DATABASE_URL=postgresql://shop:shop@localhost:5432/shop
 MONGO_URL=mongodb://localhost:27017/shop
-JWT_ACCESS_SECRET=change_me_access_min16
-JWT_REFRESH_SECRET=change_me_refresh_min16
+JWT_ACCESS_SECRET=CHANGE_ME_generate_a_32plus_char_access_secret
+JWT_REFRESH_SECRET=CHANGE_ME_generate_a_32plus_char_refresh_secret
 ACCESS_TTL=15m
 REFRESH_TTL=7d
 CORS_ORIGINS=http://localhost:3001,http://localhost:3002
@@ -722,7 +797,7 @@ ADMIN_PASSWORD=admin12345
 
 - [ ] **Step 6: Run tests + e2e to verify green**
 
-Run: `pnpm --filter api test && DATABASE_URL=postgresql://shop:shop@localhost:5432/shop MONGO_URL=mongodb://localhost:27017/shop JWT_ACCESS_SECRET=aaaaaaaaaaaaaaaa JWT_REFRESH_SECRET=bbbbbbbbbbbbbbbb pnpm --filter api test:e2e`
+Run (in the dev container, where DB + JWT env are already set): `docker compose exec dev pnpm --filter api test && docker compose exec dev pnpm --filter api test:e2e`
 Expected: unit test PASS (2). e2e still PASS (2) — `AppModule` boots with valid env.
 
 - [ ] **Step 7: Commit**
@@ -930,33 +1005,35 @@ jobs:
     env:
       DATABASE_URL: postgresql://shop:shop@localhost:5432/shop
       MONGO_URL: mongodb://localhost:27017/shop
-      JWT_ACCESS_SECRET: ci_access_secret_min16
-      JWT_REFRESH_SECRET: ci_refresh_secret_min16
+      JWT_ACCESS_SECRET: ci_access_secret_not_for_production_0123456789
+      JWT_REFRESH_SECRET: ci_refresh_secret_not_for_production_0123456789
     steps:
       - uses: actions/checkout@v4
+      # pnpm version comes from package.json "packageManager"; setting `version`
+      # here too makes pnpm/action-setup error on the duplicate.
       - uses: pnpm/action-setup@v4
-        with: { version: 9 }
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter api exec prisma generate
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm --filter api test:e2e
       - run: pnpm build
 ```
 
 - [ ] **Step 2: Verify the pipeline locally (same steps CI runs)**
 
-Run:
+Run (inside the dev container, DBs already up):
 ```bash
-pnpm install --frozen-lockfile
-pnpm --filter api exec prisma generate
-pnpm lint && pnpm typecheck && pnpm test && pnpm build
+docker compose exec dev pnpm install --frozen-lockfile
+docker compose exec dev pnpm --filter api exec prisma generate
+docker compose exec dev sh -c "pnpm lint && pnpm typecheck && pnpm test && pnpm --filter api test:e2e && pnpm build"
 ```
-Expected: all four commands exit 0 (Postgres+Mongo from Task 5 still running for the e2e/smoke).
+Expected: all steps exit 0. The e2e boots the app against the live Postgres+Mongo, proving DB wiring.
 
 - [ ] **Step 3: Commit**
 
