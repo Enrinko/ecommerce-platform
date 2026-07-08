@@ -17,6 +17,25 @@ export const product = z.object({
 });
 export type Product = z.infer<typeof product>;
 
+export const createProductInput = z.object({
+  title: z.string().min(1),
+  slug: z
+    .string()
+    .min(1)
+    .regex(/^[a-z0-9-]+$/),
+  description: z.string().min(1),
+  priceCents: z.number().int().min(0),
+  currency: z.string().default('USD'),
+  stock: z.number().int().min(0).default(0),
+  images: z.array(z.string()).default([]),
+  isActive: z.boolean().default(true),
+  categoryId: z.string().uuid(),
+});
+export type CreateProductInput = z.infer<typeof createProductInput>;
+
+export const updateProductInput = createProductInput.partial();
+export type UpdateProductInput = z.infer<typeof updateProductInput>;
+
 export const productListQuery = pageQuery.extend({
   category: z.string().trim().min(1).optional(), // category slug
   q: z.string().trim().min(1).optional(),

@@ -1,6 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
-import type { ProductListQuery, Paginated, Product } from '@repo/types';
+import type {
+  CreateProductInput,
+  Paginated,
+  Product,
+  ProductListQuery,
+  UpdateProductInput,
+} from '@repo/types';
 import { PrismaService } from '../prisma/prisma.service';
 
 const ORDER: Record<ProductListQuery['sort'], Prisma.ProductOrderByWithRelationInput> = {
@@ -45,5 +51,17 @@ export class ProductsService {
     const found = await this.prisma.product.findUnique({ where: { slug }, ...withCategory });
     if (!found) throw new NotFoundException(`Product "${slug}" not found`);
     return found as unknown as Product;
+  }
+
+  create(data: CreateProductInput) {
+    return this.prisma.product.create({ data });
+  }
+
+  update(id: string, data: UpdateProductInput) {
+    return this.prisma.product.update({ where: { id }, data });
+  }
+
+  remove(id: string) {
+    return this.prisma.product.delete({ where: { id } });
   }
 }
