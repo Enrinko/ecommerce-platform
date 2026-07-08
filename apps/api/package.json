@@ -12,7 +12,11 @@
     "test:e2e": "jest --config test/jest-e2e.json --runInBand --forceExit",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:deploy": "prisma migrate deploy"
+    "prisma:deploy": "prisma migrate deploy",
+    "db:seed": "prisma db seed"
+  },
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.0",
@@ -34,6 +38,7 @@
   "devDependencies": {
     "@nestjs/cli": "^11.0.0",
     "prisma": "^6.0.0",
+    "tsx": "^4.19.0",
     "@nestjs/testing": "^11.0.0",
     "@repo/config": "workspace:*",
     "@types/cookie-parser": "^1.4.7",
