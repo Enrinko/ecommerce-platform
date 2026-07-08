@@ -1020,18 +1020,19 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm --filter api test:e2e
       - run: pnpm build
 ```
 
 - [ ] **Step 2: Verify the pipeline locally (same steps CI runs)**
 
-Run:
+Run (inside the dev container, DBs already up):
 ```bash
-pnpm install --frozen-lockfile
-pnpm --filter api exec prisma generate
-pnpm lint && pnpm typecheck && pnpm test && pnpm build
+docker compose exec dev pnpm install --frozen-lockfile
+docker compose exec dev pnpm --filter api exec prisma generate
+docker compose exec dev sh -c "pnpm lint && pnpm typecheck && pnpm test && pnpm --filter api test:e2e && pnpm build"
 ```
-Expected: all four commands exit 0 (Postgres+Mongo from Task 5 still running for the e2e/smoke).
+Expected: all steps exit 0. The e2e boots the app against the live Postgres+Mongo, proving DB wiring.
 
 - [ ] **Step 3: Commit**
 
