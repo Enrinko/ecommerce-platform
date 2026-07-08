@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { AppConfigModule } from './config/config.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
@@ -14,6 +16,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 @Module({
   imports: [
     AppConfigModule,
+    // Global baseline limit; auth routes tighten this further (see AuthController).
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 120 }]),
     PrismaModule,
     MongooseModule.forRootAsync({
       inject: [ConfigService],
@@ -27,5 +31,6 @@ import { ReviewsModule } from './reviews/reviews.module';
     OrdersModule,
     ReviewsModule,
   ],
+  providers: [{ provide: APP_GUARD, useClass: ThrottlerGuard }],
 })
 export class AppModule {}

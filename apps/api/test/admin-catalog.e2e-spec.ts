@@ -72,4 +72,77 @@ describe('Admin catalog (e2e)', () => {
     const listed = await request(app.getHttpServer()).get(`/api/v1/products/${slug}`).expect(200);
     expect(listed.body.priceCents).toBe(4200);
   });
+
+  it('deleting a category that still has products fails with 409, not 500', async () => {
+    const cat = await request(app.getHttpServer())
+      .post('/api/v1/categories')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Doomed', slug: `doomed-${Date.now()}` })
+      .expect(201);
+    await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        title: 'Anchor',
+        slug: `anchor-${Date.now()}`,
+        description: 'keeps the category alive',
+        priceCents: 999,
+        categoryId: cat.body.id,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer())
+      .delete(`/api/v1/categories/${cat.body.id}`)
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(409);
+  });
+
+  it('updating a non-existent product returns 404, not 500', async () => {
+    await request(app.getHttpServer())
+      .patch('/api/v1/products/00000000-0000-0000-0000-000000000000')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ priceCents: 1 })
+      .expect(404);
+  });
+
+  it('rejects a product with an unsupported currency (400)', async () => {
+    const cat = await request(app.getHttpServer())
+      .post('/api/v1/categories')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Cur', slug: `cur-${Date.now()}` });
+    await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        title: 'Banana priced',
+        slug: `banana-${Date.now()}`,
+        description: 'weird currency',
+        priceCents: 100,
+        currency: 'banana',
+        categoryId: cat.body.id,
+      })
+      .expect(400);
+  });
+
+  it('an inactive product is hidden from the public detail page (404)', async () => {
+    const cat = await request(app.getHttpServer())
+      .post('/api/v1/categories')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({ name: 'Hidden', slug: `hidden-${Date.now()}` });
+    const slug = `hidden-item-${Date.now()}`;
+    await request(app.getHttpServer())
+      .post('/api/v1/products')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .send({
+        title: 'Hidden Item',
+        slug,
+        description: 'not for sale',
+        priceCents: 100,
+        isActive: false,
+        categoryId: cat.body.id,
+      })
+      .expect(201);
+
+    await request(app.getHttpServer()).get(`/api/v1/products/${slug}`).expect(404);
+  });
 });

@@ -60,4 +60,20 @@ describe('Cart (e2e)', () => {
       .expect(200);
     expect(removed.body.items).toHaveLength(0);
   });
+
+  it('updating an item that is not in the cart returns 404, not 500', async () => {
+    await request(app.getHttpServer())
+      .patch(`/api/v1/cart/items/${productId}`)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ qty: 3 })
+      .expect(404);
+  });
+
+  it('rejects an absurdly large quantity (400)', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/cart/items')
+      .set('Authorization', `Bearer ${token}`)
+      .send({ productId, qty: 1_000_000 })
+      .expect(400);
+  });
 });

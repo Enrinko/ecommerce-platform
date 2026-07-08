@@ -31,6 +31,24 @@ describe('Auth (e2e)', () => {
     expect(res.body.refreshToken).toBeDefined();
   });
 
+  it('sets a persistent refresh cookie with Max-Age (not a session cookie)', async () => {
+    const res = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({ email, password })
+      .expect(201);
+    const cookies = res.headers['set-cookie'] as unknown as string[];
+    const refreshCookie = cookies.find((c) => c.startsWith('refresh_token='));
+    expect(refreshCookie).toBeDefined();
+    expect(refreshCookie).toMatch(/Max-Age=\d+/i);
+  });
+
+  it('logout requires authentication (spec §7: 🔒)', async () => {
+    await request(app.getHttpServer())
+      .post('/api/v1/auth/logout')
+      .send({ refreshToken: 'whatever' })
+      .expect(401);
+  });
+
   it('me requires a bearer token', async () => {
     await request(app.getHttpServer()).get('/api/v1/auth/me').expect(401);
   });
@@ -64,6 +82,7 @@ describe('Auth (e2e)', () => {
 
     await request(app.getHttpServer())
       .post('/api/v1/auth/logout')
+      .set('Authorization', `Bearer ${refreshed.body.accessToken}`)
       .send({ refreshToken: refreshed.body.refreshToken })
       .expect(201);
   });

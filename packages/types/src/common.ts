@@ -6,6 +6,11 @@ export const pageQuery = z.object({
 });
 export type PageQuery = z.infer<typeof pageQuery>;
 
+// Single source of truth for supported currencies. The platform is single-
+// currency per order (mixed-currency carts are rejected at checkout).
+export const currency = z.enum(['USD', 'EUR', 'GBP']);
+export type Currency = z.infer<typeof currency>;
+
 export interface Paginated<T> {
   items: T[];
   total: number;

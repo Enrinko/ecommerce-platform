@@ -31,9 +31,13 @@ export class TokenService {
     return createHash('sha256').update(raw).digest('hex');
   }
 
-  refreshExpiry(): Date {
+  refreshTtlMs(): number {
     const ttl = this.config.get<string>('REFRESH_TTL') ?? '7d';
     const days = Number(ttl.replace('d', '')) || 7;
-    return new Date(Date.now() + days * 24 * 60 * 60 * 1000);
+    return days * 24 * 60 * 60 * 1000;
+  }
+
+  refreshExpiry(): Date {
+    return new Date(Date.now() + this.refreshTtlMs());
   }
 }
