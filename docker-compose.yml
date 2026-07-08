@@ -22,7 +22,7 @@ services:
       timeout: 5s
       retries: 10
   dev:
-    image: node:22-bookworm-slim
+    image: node:22-bookworm
     working_dir: /app
     command: sh -c "corepack enable && sleep infinity"
     ports: ["3000:3000"]
@@ -30,8 +30,8 @@ services:
       NODE_ENV: development
       DATABASE_URL: postgresql://shop:shop@postgres:5432/shop
       MONGO_URL: mongodb://mongo:27017/shop
-      JWT_ACCESS_SECRET: dev_access_secret_min16
-      JWT_REFRESH_SECRET: dev_refresh_secret_min16
+      JWT_ACCESS_SECRET: dev_access_secret_not_for_production_0123456789
+      JWT_REFRESH_SECRET: dev_refresh_secret_not_for_production_0123456789
       CORS_ORIGINS: http://localhost:3001,http://localhost:3002
     depends_on:
       postgres: { condition: service_healthy }

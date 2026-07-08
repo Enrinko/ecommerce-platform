@@ -64,7 +64,7 @@ services:
       timeout: 5s
       retries: 10
   dev:
-    image: node:22-bookworm-slim
+    image: node:22-bookworm   # full image (not -slim): ships openssl so Prisma's engine detects libssl cleanly
     working_dir: /app
     command: sh -c "corepack enable && sleep infinity"
     ports: ["3000:3000"]
@@ -72,8 +72,8 @@ services:
       NODE_ENV: development
       DATABASE_URL: postgresql://shop:shop@postgres:5432/shop
       MONGO_URL: mongodb://mongo:27017/shop
-      JWT_ACCESS_SECRET: dev_access_secret_min16
-      JWT_REFRESH_SECRET: dev_refresh_secret_min16
+      JWT_ACCESS_SECRET: dev_access_secret_not_for_production_0123456789
+      JWT_REFRESH_SECRET: dev_refresh_secret_not_for_production_0123456789
       CORS_ORIGINS: http://localhost:3001,http://localhost:3002
     depends_on:
       postgres: { condition: service_healthy }
@@ -785,8 +785,8 @@ NODE_ENV=development
 PORT=3000
 DATABASE_URL=postgresql://shop:shop@localhost:5432/shop
 MONGO_URL=mongodb://localhost:27017/shop
-JWT_ACCESS_SECRET=change_me_access_min16
-JWT_REFRESH_SECRET=change_me_refresh_min16
+JWT_ACCESS_SECRET=CHANGE_ME_generate_a_32plus_char_access_secret
+JWT_REFRESH_SECRET=CHANGE_ME_generate_a_32plus_char_refresh_secret
 ACCESS_TTL=15m
 REFRESH_TTL=7d
 CORS_ORIGINS=http://localhost:3001,http://localhost:3002
@@ -797,7 +797,7 @@ ADMIN_PASSWORD=admin12345
 
 - [ ] **Step 6: Run tests + e2e to verify green**
 
-Run: `pnpm --filter api test && DATABASE_URL=postgresql://shop:shop@localhost:5432/shop MONGO_URL=mongodb://localhost:27017/shop JWT_ACCESS_SECRET=aaaaaaaaaaaaaaaa JWT_REFRESH_SECRET=bbbbbbbbbbbbbbbb pnpm --filter api test:e2e`
+Run (in the dev container, where DB + JWT env are already set): `docker compose exec dev pnpm --filter api test && docker compose exec dev pnpm --filter api test:e2e`
 Expected: unit test PASS (2). e2e still PASS (2) — `AppModule` boots with valid env.
 
 - [ ] **Step 7: Commit**
@@ -1005,8 +1005,8 @@ jobs:
     env:
       DATABASE_URL: postgresql://shop:shop@localhost:5432/shop
       MONGO_URL: mongodb://localhost:27017/shop
-      JWT_ACCESS_SECRET: ci_access_secret_min16
-      JWT_REFRESH_SECRET: ci_refresh_secret_min16
+      JWT_ACCESS_SECRET: ci_access_secret_not_for_production_0123456789
+      JWT_REFRESH_SECRET: ci_refresh_secret_not_for_production_0123456789
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4

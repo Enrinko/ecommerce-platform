@@ -1,0 +1,11 @@
+generator client {
+  provider      = "prisma-client-js"
+  // native = current dev/CI host; debian-openssl-3.0.x pins the Linux engine
+  // (bookworm dev container + ubuntu CI both ship OpenSSL 3).
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
