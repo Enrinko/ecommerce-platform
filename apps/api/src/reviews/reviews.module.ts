@@ -13,5 +13,6 @@ import { ProductRatingDoc, ProductRatingSchema, Review, ReviewSchema } from './r
   ],
   controllers: [ReviewsController],
   providers: [ReviewsService],
+  exports: [ReviewsService],
 })
 export class ReviewsModule {}

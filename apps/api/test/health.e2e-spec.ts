@@ -19,8 +19,15 @@ describe('Health (e2e)', () => {
     await app.close();
   });
 
-  it('GET /api/v1/health -> 200 { status: "ok" }', () =>
-    request(app.getHttpServer()).get('/api/v1/health').expect(200).expect({ status: 'ok' }));
+  it('GET /api/v1/health -> 200 and reports live DB dependencies', () =>
+    request(app.getHttpServer())
+      .get('/api/v1/health')
+      .expect(200)
+      .expect((res) => {
+        if (res.body.status !== 'ok' || res.body.postgres !== 'up' || res.body.mongo !== 'up') {
+          throw new Error(`unexpected health body: ${JSON.stringify(res.body)}`);
+        }
+      }));
 
   it('unknown route -> 404 with standard error shape', () =>
     request(app.getHttpServer())

@@ -19,6 +19,11 @@ export class AuthService {
   }): Promise<AuthTokens> {
     const accessToken = this.tokens.signAccess({ sub: user.id, role: user.role, email: user.email });
     const refreshToken = this.tokens.generateRefresh();
+    // Opportunistically prune this user's expired sessions so the table doesn't
+    // grow unbounded with dead rows across repeated logins.
+    await this.prisma.refreshSession.deleteMany({
+      where: { userId: user.id, expiresAt: { lt: new Date() } },
+    });
     await this.prisma.refreshSession.create({
       data: {
         userId: user.id,
@@ -40,7 +45,11 @@ export class AuthService {
 
   async login(dto: LoginInput): Promise<AuthTokens> {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (!user || !(await this.passwords.verify(user.passwordHash, dto.password))) {
+    if (!user) {
+      await this.passwords.verifyDummy(); // equalize timing with the real-user path
+      throw new UnauthorizedException('Invalid credentials');
+    }
+    if (!(await this.passwords.verify(user.passwordHash, dto.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
     return this.issue(user);

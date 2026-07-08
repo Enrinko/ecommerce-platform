@@ -52,4 +52,20 @@ describe('Catalog (e2e)', () => {
     await request(app.getHttpServer()).get('/api/v1/products/wireless-headphones').expect(200);
     await request(app.getHttpServer()).get('/api/v1/products/does-not-exist').expect(404);
   });
+
+  it('treats LIKE wildcards in q as literals (no full-catalog match)', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/products')
+      .query({ q: '%%%', limit: 50 })
+      .expect(200);
+    // '%' must not act as a wildcard; no seeded title contains a literal '%'.
+    expect(res.body.items.length).toBe(0);
+  });
+
+  it('rejects an inverted price range (400)', async () => {
+    await request(app.getHttpServer())
+      .get('/api/v1/products')
+      .query({ minPriceCents: 100, maxPriceCents: 50 })
+      .expect(400);
+  });
 });

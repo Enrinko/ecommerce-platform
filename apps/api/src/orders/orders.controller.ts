@@ -1,5 +1,5 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
-import { createOrderInput, updateOrderStatusInput } from '@repo/types';
+import { Body, Controller, Get, Param, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { createOrderInput, pageQuery, updateOrderStatusInput } from '@repo/types';
 import { OrdersService } from './orders.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
@@ -20,8 +20,8 @@ export class OrdersController {
 
   @Get('orders')
   @UseGuards(JwtAuthGuard)
-  listMine(@CurrentUser() user: AuthUser) {
-    return this.orders.listMine(user.id);
+  listMine(@CurrentUser() user: AuthUser, @Query() query: unknown) {
+    return this.orders.listMine(user.id, pageQuery.parse(query));
   }
 
   @Get('orders/:id')
@@ -33,8 +33,8 @@ export class OrdersController {
   @Get('admin/orders')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
-  listAll() {
-    return this.orders.listAll();
+  listAll(@Query() query: unknown) {
+    return this.orders.listAll(pageQuery.parse(query));
   }
 
   @Patch('admin/orders/:id/status')
