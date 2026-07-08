@@ -43,5 +43,7 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
+      - run: pnpm --filter api exec prisma migrate deploy
+      - run: pnpm --filter api db:seed
       - run: pnpm --filter api test:e2e
       - run: pnpm build
