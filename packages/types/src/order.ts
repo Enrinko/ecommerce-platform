@@ -1,0 +1,13 @@
+import { z } from 'zod';
+
+export const orderStatus = z.enum(['PENDING', 'PAID', 'SHIPPED', 'DELIVERED', 'CANCELLED']);
+export type OrderStatusValue = z.infer<typeof orderStatus>;
+
+export const createOrderInput = z.object({
+  shippingName: z.string().min(1),
+  shippingAddr: z.string().min(1),
+});
+export type CreateOrderInput = z.infer<typeof createOrderInput>;
+
+export const updateOrderStatusInput = z.object({ status: orderStatus });
+export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusInput>;
