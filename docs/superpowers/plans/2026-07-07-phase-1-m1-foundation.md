@@ -1009,11 +1009,12 @@ jobs:
       JWT_REFRESH_SECRET: ci_refresh_secret_not_for_production_0123456789
     steps:
       - uses: actions/checkout@v4
+      # pnpm version comes from package.json "packageManager"; setting `version`
+      # here too makes pnpm/action-setup error on the duplicate.
       - uses: pnpm/action-setup@v4
-        with: { version: 9 }
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter api exec prisma generate
