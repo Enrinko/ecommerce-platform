@@ -22,6 +22,8 @@ model User {
   role         Role             @default(CUSTOMER)
   createdAt    DateTime         @default(now())
   sessions     RefreshSession[]
+  cart         Cart?
+  orders       Order[]
 }
 
 model RefreshSession {
@@ -55,6 +57,77 @@ model Product {
   categoryId  String
   category    Category @relation(fields: [categoryId], references: [id])
   createdAt   DateTime @default(now())
+  cartItems   CartItem[]
+  orderItems  OrderItem[]
 
   @@index([categoryId])
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+model Cart {
+  id     String     @id @default(uuid())
+  userId String     @unique
+  user   User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  items  CartItem[]
+}
+
+model CartItem {
+  id        String  @id @default(uuid())
+  cartId    String
+  cart      Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  qty       Int
+
+  @@unique([cartId, productId])
+}
+
+model Order {
+  id           String      @id @default(uuid())
+  userId       String
+  user         User        @relation(fields: [userId], references: [id])
+  status       OrderStatus @default(PENDING)
+  totalCents   Int
+  currency     String      @default("USD")
+  shippingName String
+  shippingAddr String
+  createdAt    DateTime    @default(now())
+  items        OrderItem[]
+  payment      Payment?
+
+  @@index([userId])
+}
+
+model OrderItem {
+  id                 String  @id @default(uuid())
+  orderId            String
+  order              Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId          String
+  product            Product @relation(fields: [productId], references: [id])
+  titleSnapshot      String
+  priceCentsSnapshot Int
+  qty                Int
+}
+
+model Payment {
+  id          String        @id @default(uuid())
+  orderId     String        @unique
+  order       Order         @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  provider    String
+  providerRef String?
+  status      PaymentStatus @default(PENDING)
+  amountCents Int
 }
