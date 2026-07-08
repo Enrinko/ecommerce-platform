@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import * as argon2 from 'argon2';
 
 const prisma = new PrismaClient();
 
@@ -46,6 +47,19 @@ async function main(): Promise<void> {
         categoryId: bySlug[cat],
       },
     });
+  }
+
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  if (adminEmail && adminPassword) {
+    await prisma.user.upsert({
+      where: { email: adminEmail },
+      update: { role: 'ADMIN' },
+      create: { email: adminEmail, passwordHash: await argon2.hash(adminPassword), role: 'ADMIN' },
+    });
+    console.log(`Seeded admin: ${adminEmail}`);
+  } else {
+    console.log('Admin seed skipped (ADMIN_EMAIL/ADMIN_PASSWORD not set)');
   }
 
   const [c, pc] = [await prisma.category.count(), await prisma.product.count()];

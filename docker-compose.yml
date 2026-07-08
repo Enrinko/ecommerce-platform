@@ -33,6 +33,8 @@ services:
       JWT_ACCESS_SECRET: dev_access_secret_not_for_production_0123456789
       JWT_REFRESH_SECRET: dev_refresh_secret_not_for_production_0123456789
       CORS_ORIGINS: http://localhost:3001,http://localhost:3002
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: dev_admin_password_change_me
     depends_on:
       postgres: { condition: service_healthy }
       mongo: { condition: service_healthy }

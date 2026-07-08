@@ -4,6 +4,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { AppConfigModule } from './config/config.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { HealthModule } from './health/health.module';
+import { AuthModule } from './auth/auth.module';
 import { CategoriesModule } from './categories/categories.module';
 import { ProductsModule } from './products/products.module';
 
@@ -16,6 +17,7 @@ import { ProductsModule } from './products/products.module';
       useFactory: (config: ConfigService) => ({ uri: config.getOrThrow<string>('MONGO_URL') }),
     }),
     HealthModule,
+    AuthModule,
     CategoriesModule,
     ProductsModule,
   ],
