@@ -29,6 +29,8 @@ jobs:
       MONGO_URL: mongodb://localhost:27017/shop
       JWT_ACCESS_SECRET: ci_access_secret_not_for_production_0123456789
       JWT_REFRESH_SECRET: ci_refresh_secret_not_for_production_0123456789
+      ADMIN_EMAIL: admin@example.com
+      ADMIN_PASSWORD: ci_admin_password_change_me
     steps:
       - uses: actions/checkout@v4
       # pnpm version comes from package.json "packageManager"; do not also set
