@@ -2,8 +2,10 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   createProduct,
   getAdminProduct,
+  getAdminStats,
   listAdminProducts,
   listAllOrders,
+  listUsers,
   updateOrderStatus,
 } from './index';
 
@@ -53,5 +55,17 @@ describe('admin api-client', () => {
     const spy2 = capture(200, { id: 'p1', isActive: false });
     await getAdminProduct('p1', { baseUrl: 'http://api' });
     expect(spy2.mock.calls[0][0]).toBe('http://api/admin/products/p1');
+  });
+
+  it('reads the admin users page and stats', async () => {
+    const spy = capture(200, { items: [], total: 0, page: 1, limit: 100 });
+    await listUsers({ limit: 100 }, { baseUrl: 'http://api', accessToken: 'tok' });
+    const [url, init] = spy.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('http://api/admin/users?limit=100');
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer tok');
+
+    const spy2 = capture(200, { ordersTotal: 0 });
+    await getAdminStats({ baseUrl: 'http://api' });
+    expect(spy2.mock.calls[0][0]).toBe('http://api/admin/stats');
   });
 });

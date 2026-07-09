@@ -175,6 +175,16 @@ describe('Admin order status (e2e)', () => {
       .expect(403);
   });
 
+  it('exposes the customer email on admin order rows', async () => {
+    const res = await request(app.getHttpServer())
+      .get('/api/v1/admin/orders?limit=100')
+      .set('Authorization', `Bearer ${adminToken}`)
+      .expect(200);
+    expect(res.body.items.length).toBeGreaterThan(0);
+    const row = res.body.items.find((o: { id: string }) => o.id === orderId);
+    expect(row.user).toEqual(expect.objectContaining({ email: expect.any(String) }));
+  });
+
   it('admin advances PAID -> SHIPPED -> DELIVERED', async () => {
     const shipped = await request(app.getHttpServer())
       .patch(`/api/v1/admin/orders/${orderId}/status`)

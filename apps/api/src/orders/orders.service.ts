@@ -125,7 +125,7 @@ export class OrdersService {
   async getOne(userId: string, isAdmin: boolean, id: string) {
     const order = await this.prisma.order.findUnique({
       where: { id },
-      include: { items: true, payment: true },
+      include: { items: true, payment: true, user: { select: { id: true, email: true } } },
     });
     if (!order) throw new NotFoundException('Order not found');
     if (!isAdmin && order.userId !== userId) throw new ForbiddenException('Not your order');
@@ -135,7 +135,7 @@ export class OrdersService {
   async listAll({ page, limit }: PageQuery) {
     const [items, total] = await this.prisma.$transaction([
       this.prisma.order.findMany({
-        include: { items: true, payment: true },
+        include: { items: true, payment: true, user: { select: { id: true, email: true } } },
         orderBy: { createdAt: 'desc' },
         skip: (page - 1) * limit,
         take: limit,
