@@ -94,7 +94,7 @@ Dependency order: `@repo/types` (exists) → **Task 1–2** api-client → **Tas
 - Test: `packages/api-client/src/http.test.ts`
 
 **Interfaces:**
-- Produces: `class ApiError extends Error { status: number; message: string; errors?: Record<string,string[]> }`; `interface RequestOptions { baseUrl?: string; accessToken?: string; init?: RequestInit }`; `apiFetch<T>(path: string, opts?: RequestOptions): Promise<T>`.
+- Produces: `class ApiError extends Error { status: number; message: string; errors?: Record<string,string[]> }`; `interface RequestOptions { baseUrl?: string; accessToken?: string; init?: RequestInit }`; `apiFetch<T>(path: string, opts?: RequestOptions): Promise<T>`; `toQuery(params: Record<string, unknown>): string` (shared query-string builder used by list endpoints).
 
 - [ ] **Step 1: Scaffold the package**
 
@@ -251,6 +251,17 @@ export async function apiFetch<T>(path: string, opts: RequestOptions = {}): Prom
   }
   return body as T;
 }
+
+// Shared query-string builder for list endpoints: serializes defined params,
+// skips undefined/null, returns "" or "?a=1&b=2".
+export function toQuery(params: Record<string, unknown>): string {
+  const qs = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null) qs.set(key, String(value));
+  }
+  const s = qs.toString();
+  return s ? `?${s}` : '';
+}
 ```
 
 - [ ] **Step 5: Run the test, verify it passes**
@@ -323,7 +334,7 @@ Expected: FAIL — `listProducts`/`login` not exported.
 `packages/api-client/src/products.ts`:
 ```ts
 import type { Paginated, Product, ProductListQuery } from '@repo/types';
-import { apiFetch, type RequestOptions } from './http';
+import { apiFetch, toQuery, type RequestOptions } from './http';
 
 export type ProductDetail = Product & { rating: { avg: number; count: number } };
 
@@ -331,12 +342,7 @@ export function listProducts(
   query: Partial<ProductListQuery> = {},
   opts?: RequestOptions,
 ): Promise<Paginated<Product>> {
-  const qs = new URLSearchParams();
-  for (const [key, value] of Object.entries(query)) {
-    if (value !== undefined && value !== null) qs.set(key, String(value));
-  }
-  const suffix = qs.toString() ? `?${qs.toString()}` : '';
-  return apiFetch<Paginated<Product>>(`/products${suffix}`, opts);
+  return apiFetch<Paginated<Product>>(`/products${toQuery(query)}`, opts);
 }
 
 export function getProduct(slug: string, opts?: RequestOptions): Promise<ProductDetail> {
@@ -407,7 +413,7 @@ export function removeCartItem(productId: string, opts?: RequestOptions): Promis
 `packages/api-client/src/orders.ts`:
 ```ts
 import type { CreateOrderInput, PageQuery } from '@repo/types';
-import { apiFetch, type RequestOptions } from './http';
+import { apiFetch, toQuery, type RequestOptions } from './http';
 
 export type Order = { id: string; status: string; totalCents: number; currency: string; items: unknown[] };
 export type OrderList = { items: Order[]; total: number; page: number; limit: number };
@@ -416,10 +422,7 @@ export function checkout(input: CreateOrderInput, opts?: RequestOptions): Promis
   return apiFetch<Order>('/orders', { ...opts, init: { ...opts?.init, method: 'POST', body: JSON.stringify(input) } });
 }
 export function listMyOrders(query: Partial<PageQuery> = {}, opts?: RequestOptions): Promise<OrderList> {
-  const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(query)) if (v !== undefined) qs.set(k, String(v));
-  const suffix = qs.toString() ? `?${qs.toString()}` : '';
-  return apiFetch<OrderList>(`/orders${suffix}`, opts);
+  return apiFetch<OrderList>(`/orders${toQuery(query)}`, opts);
 }
 export function getOrder(id: string, opts?: RequestOptions): Promise<Order> {
   return apiFetch<Order>(`/orders/${id}`, opts);
@@ -429,7 +432,7 @@ export function getOrder(id: string, opts?: RequestOptions): Promise<Order> {
 `packages/api-client/src/reviews.ts`:
 ```ts
 import type { CreateReviewInput, PageQuery, ProductRating } from '@repo/types';
-import { apiFetch, type RequestOptions } from './http';
+import { apiFetch, toQuery, type RequestOptions } from './http';
 
 export type ReviewList = {
   items: Array<{ productId: string; userId: string; rating: number; title: string; body: string }>;
@@ -440,10 +443,7 @@ export type ReviewList = {
 };
 
 export function listReviews(productId: string, query: Partial<PageQuery> = {}, opts?: RequestOptions): Promise<ReviewList> {
-  const qs = new URLSearchParams();
-  for (const [k, v] of Object.entries(query)) if (v !== undefined) qs.set(k, String(v));
-  const suffix = qs.toString() ? `?${qs.toString()}` : '';
-  return apiFetch<ReviewList>(`/products/${productId}/reviews${suffix}`, opts);
+  return apiFetch<ReviewList>(`/products/${productId}/reviews${toQuery(query)}`, opts);
 }
 export function createReview(productId: string, input: CreateReviewInput, opts?: RequestOptions): Promise<ReviewList> {
   return apiFetch<ReviewList>(`/products/${productId}/reviews`, { ...opts, init: { ...opts?.init, method: 'POST', body: JSON.stringify(input) } });
@@ -452,7 +452,7 @@ export function createReview(productId: string, input: CreateReviewInput, opts?:
 
 `packages/api-client/src/index.ts`:
 ```ts
-export { ApiError } from './http';
+export { ApiError, toQuery } from './http';
 export type { ApiErrorBody, RequestOptions } from './http';
 export * from './products';
 export * from './categories';
