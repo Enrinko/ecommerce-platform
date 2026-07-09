@@ -13,6 +13,8 @@ export default [
       'metro.config.js',
       'babel.config.js',
       'jest.config.js',
+      // jest.mock factories must use require() (hoisting), not import.
+      'jest.setup.ts',
     ],
   },
 ];
