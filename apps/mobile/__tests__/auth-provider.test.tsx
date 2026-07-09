@@ -15,7 +15,7 @@ jest.mock('@repo/api-client', () => {
 });
 
 import * as SecureStore from 'expo-secure-store';
-import { AuthProvider, useAuth } from './auth-provider';
+import { AuthProvider, useAuth } from '@/components/auth-provider';
 
 const mockRefresh = refresh as jest.Mock;
 const mockMe = me as jest.Mock;

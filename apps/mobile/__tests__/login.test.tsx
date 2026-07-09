@@ -3,9 +3,9 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react-nativ
 const mockReplace = jest.fn();
 jest.mock('expo-router', () => ({ useRouter: () => ({ replace: mockReplace }) }));
 const mockLogin = jest.fn();
-jest.mock('@/app/_components/auth-provider', () => ({ useAuth: () => ({ login: mockLogin }) }));
+jest.mock('@/components/auth-provider', () => ({ useAuth: () => ({ login: mockLogin }) }));
 
-import LoginScreen from './login';
+import LoginScreen from '@/app/(auth)/login';
 
 beforeEach(() => {
   mockReplace.mockReset();

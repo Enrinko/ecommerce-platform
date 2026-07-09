@@ -1,5 +1,7 @@
 module.exports = {
   preset: 'jest-expo',
+  // e2e/ holds Playwright specs (run via `test:e2e`), not Jest suites.
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/e2e/', '<rootDir>/dist/'],
   setupFiles: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     // Force a single React instance: react-hook-form ships a nested react copy,

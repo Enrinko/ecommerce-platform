@@ -7,7 +7,7 @@ import { loginInput, type LoginInput } from '@repo/types';
 import { ApiError } from '@repo/api-client';
 import { Field } from '@/components/field';
 import { Button } from '@/components/button';
-import { useAuth } from '@/app/_components/auth-provider';
+import { useAuth } from '@/components/auth-provider';
 
 export default function LoginScreen() {
   const { login } = useAuth();
