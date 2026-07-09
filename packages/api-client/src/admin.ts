@@ -1,4 +1,5 @@
 import type {
+  AdminStats,
   CreateCategoryInput,
   CreateProductInput,
   OrderStatusValue,
@@ -7,6 +8,7 @@ import type {
   Product,
   UpdateCategoryInput,
   UpdateProductInput,
+  UserListItem,
 } from '@repo/types';
 import { apiFetch, toQuery, type RequestOptions } from './http';
 import type { Order, OrderList } from './orders';
@@ -62,4 +64,14 @@ export function listAdminProducts(
 }
 export function getAdminProduct(id: string, opts?: RequestOptions): Promise<Product> {
   return apiFetch<Product>(`/admin/products/${id}`, opts);
+}
+
+export function listUsers(
+  query: Partial<PageQuery> = {},
+  opts?: RequestOptions,
+): Promise<Paginated<UserListItem>> {
+  return apiFetch<Paginated<UserListItem>>(`/admin/users${toQuery(query)}`, opts);
+}
+export function getAdminStats(opts?: RequestOptions): Promise<AdminStats> {
+  return apiFetch<AdminStats>('/admin/stats', opts);
 }
