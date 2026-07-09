@@ -78,6 +78,9 @@ jobs:
       ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: ci_admin_password_change_me
       NEXT_PUBLIC_API_URL: http://localhost:3000/api/v1
+      # The web app (origin :3001) makes cross-origin browser requests to the API
+      # (:3000); without this allowlist the API blocks them and client calls fail.
+      CORS_ORIGINS: http://localhost:3001
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
