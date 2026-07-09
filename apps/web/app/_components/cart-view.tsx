@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Price } from '@repo/ui';
 import { useAuth } from './auth-provider';
 import { useGuestCart } from '@/lib/guest-cart';
@@ -73,6 +74,12 @@ export function CartView() {
         <span className="font-mono text-sm uppercase tracking-widest text-graphite">Total</span>
         <Price cents={total} currency={currency} className="text-lg" />
       </div>
+      <Link
+        href="/checkout"
+        className="inline-flex items-center justify-center rounded-md bg-accent px-4 py-2 text-sm font-medium text-accent-ink hover:bg-accent/90"
+      >
+        Checkout
+      </Link>
     </div>
   );
 }
