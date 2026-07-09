@@ -37,3 +37,8 @@ Thumbs.db
 
 # Expo / React Native (later phases)
 .expo/
+
+# Playwright
+test-results/
+playwright-report/
+.last-run.json

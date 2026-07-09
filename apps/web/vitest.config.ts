@@ -7,5 +7,10 @@ export default defineConfig({
   // in scope. Force the automatic runtime for test transforms.
   esbuild: { jsx: 'automatic' },
   resolve: { alias: { '@': fileURLToPath(new URL('.', import.meta.url)) } },
-  test: { environment: 'jsdom', setupFiles: ['./vitest.setup.ts'], globals: true },
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+    globals: true,
+    exclude: ['e2e/**', 'node_modules/**', '.next/**'],
+  },
 });

@@ -10,6 +10,9 @@ export function HeaderAccount() {
     <div className="flex items-center gap-4 text-sm">
       {status === 'authed' && user ? (
         <>
+          <Link href="/account/orders" className="text-graphite hover:text-accent">
+            Orders
+          </Link>
           <span className="hidden font-mono text-xs text-graphite sm:inline">{user.email}</span>
           <button onClick={() => logout()} className="text-graphite hover:text-accent">
             Log out
