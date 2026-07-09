@@ -8,7 +8,8 @@
     "start": "next start -p 3002",
     "lint": "eslint .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@repo/api-client": "workspace:*",
@@ -22,6 +23,7 @@
     "react-hook-form": "^7.81.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@repo/config": "workspace:*",
     "@testing-library/jest-dom": "^6.5.0",
     "@testing-library/react": "^16.0.0",
