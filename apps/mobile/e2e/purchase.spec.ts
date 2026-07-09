@@ -28,6 +28,7 @@ test('guest adds to cart, registers, and checks out', async ({ page }) => {
   await page.getByLabel(/address/i).fill('1 Test Way');
   await page.getByText(/place order/i).click();
 
-  // On success the checkout routes away from /checkout (to the account tab).
-  await expect(page).not.toHaveURL(/\/checkout$/);
+  // Lands on the order detail (confirmation).
+  await expect(page).toHaveURL(/\/orders\/.+/);
+  await expect(page.getByText(/order confirmed/i)).toBeVisible();
 });

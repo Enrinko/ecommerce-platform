@@ -35,8 +35,8 @@ function CheckoutForm() {
   const onSubmit = handleSubmit(async (values) => {
     setError(null);
     try {
-      await checkout.mutateAsync(values);
-      router.push('/(tabs)/account');
+      const order = await checkout.mutateAsync(values);
+      router.push(`/orders/${order.id}`);
     } catch (e) {
       setError(messageFor(e));
     }
