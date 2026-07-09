@@ -9,6 +9,7 @@ import {
 import type { LoginInput, MeResponse, RegisterInput } from '@repo/types';
 import { API_BASE } from '@/lib/api';
 import { clearRefreshToken, getRefreshToken, setAccessToken, setRefreshToken } from '@/lib/auth';
+import { mergeGuestCartIntoServer } from '@/lib/cart';
 
 type Status = 'loading' | 'authed' | 'guest';
 type AuthValue = {
@@ -62,6 +63,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const profile = await meApi({ baseUrl: API_BASE, accessToken: tokens.accessToken });
     setUser(profile);
     setStatus('authed');
+    // Explicit login/register merges the guest cart into the server cart; a merge
+    // hiccup must never block sign-in. (Silent refresh on mount does not merge.)
+    await mergeGuestCartIntoServer(tokens.accessToken).catch(() => undefined);
   }
 
   const value: AuthValue = {

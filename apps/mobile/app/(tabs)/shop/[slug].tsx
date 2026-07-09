@@ -2,6 +2,7 @@ import { ActivityIndicator, ScrollView, Text, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Price } from '@/components/price';
 import { Rating } from '@/components/rating';
+import { AddToCart } from '@/components/add-to-cart';
 import { useProduct, useReviews } from '@/lib/catalog';
 
 export default function ProductScreen() {
@@ -35,6 +36,10 @@ export default function ProductScreen() {
         <Rating avg={p.rating.avg} count={p.rating.count} />
       </View>
       <Text style={{ marginTop: 16, color: '#17171B', lineHeight: 20 }}>{p.description}</Text>
+
+      <View style={{ marginTop: 16 }}>
+        <AddToCart product={p} />
+      </View>
 
       <Text style={{ marginTop: 24, fontSize: 16, fontWeight: '600', color: '#17171B' }}>
         Reviews
