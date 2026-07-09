@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, apiFetch } from './http';
+import { apiFetch } from './http';
 
 function mockFetch(status: number, body: unknown) {
-  return vi.fn(async () =>
+  return vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
     new Response(body === null ? null : JSON.stringify(body), {
       status,
       headers: { 'content-type': 'application/json' },
