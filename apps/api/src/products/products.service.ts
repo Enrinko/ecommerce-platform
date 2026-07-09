@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import type { Prisma } from '@prisma/client';
 import type {
   CreateProductInput,
+  PageQuery,
   Paginated,
   Product,
   ProductListQuery,
@@ -67,6 +68,27 @@ export class ProductsService {
     // Merge in the denormalized review aggregate (spec §7/§8.3).
     const rating = await this.reviews.getRating(found.id);
     return { ...(found as unknown as Product), rating };
+  }
+
+  // Admin listing: unlike the public list(), returns products of ANY status
+  // (incl. isActive:false) so the admin can see and re-activate deactivated items.
+  async listAllForAdmin(query: PageQuery): Promise<Paginated<Product>> {
+    const [items, total] = await this.prisma.$transaction([
+      this.prisma.product.findMany({
+        ...withCategory,
+        orderBy: { createdAt: 'desc' },
+        skip: (query.page - 1) * query.limit,
+        take: query.limit,
+      }),
+      this.prisma.product.count(),
+    ]);
+    return { items: items as unknown as Product[], total, page: query.page, limit: query.limit };
+  }
+
+  async getById(id: string): Promise<Product> {
+    const found = await this.prisma.product.findUnique({ where: { id }, ...withCategory });
+    if (!found) throw new NotFoundException(`Product ${id} not found`);
+    return found as unknown as Product;
   }
 
   create(data: CreateProductInput) {
