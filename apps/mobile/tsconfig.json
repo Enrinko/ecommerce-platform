@@ -3,11 +3,7 @@
   "compilerOptions": {
     "strict": true,
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"],
-      "react": ["./node_modules/@types/react"],
-      "react/*": ["./node_modules/@types/react/*"]
-    }
+    "paths": { "@/*": ["./*"] }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }
