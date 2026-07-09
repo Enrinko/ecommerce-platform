@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import {
   createProductInput,
@@ -35,7 +35,9 @@ export function ProductForm({
     handleSubmit,
     formState: { errors },
   } = useForm<CreateProductInput>({
-    resolver: zodResolver(createProductInput),
+    // createProductInput has zod `.default()`s, so its input type ≠ output type;
+    // pin the resolver to the output type so handleSubmit yields CreateProductInput.
+    resolver: zodResolver(createProductInput) as Resolver<CreateProductInput>,
     defaultValues: {
       currency: 'USD',
       stock: 0,
