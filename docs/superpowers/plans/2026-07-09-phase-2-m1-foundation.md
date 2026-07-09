@@ -154,10 +154,10 @@ Then install so the workspace links: run
 `packages/api-client/src/http.test.ts`:
 ```ts
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { ApiError, apiFetch } from './http';
+import { apiFetch } from './http';
 
 function mockFetch(status: number, body: unknown) {
-  return vi.fn(async () =>
+  return vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
     new Response(body === null ? null : JSON.stringify(body), {
       status,
       headers: { 'content-type': 'application/json' },
@@ -299,7 +299,7 @@ import { listProducts, login } from './index';
 afterEach(() => vi.unstubAllGlobals());
 
 function capture(status: number, body: unknown) {
-  const spy = vi.fn(async () =>
+  const spy = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
     new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } }),
   );
   vi.stubGlobal('fetch', spy);
