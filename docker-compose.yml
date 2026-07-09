@@ -25,14 +25,15 @@ services:
     image: node:22-bookworm
     working_dir: /app
     command: sh -c "corepack enable && sleep infinity"
-    ports: ["3000:3000"]
+    # 3000 API · 3001 web storefront · 3002 admin · 8081 Expo Web (Phase 4 mobile)
+    ports: ["3000:3000", "3001:3001", "3002:3002", "8081:8081"]
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://shop:shop@postgres:5432/shop
       MONGO_URL: mongodb://mongo:27017/shop
       JWT_ACCESS_SECRET: dev_access_secret_not_for_production_0123456789
       JWT_REFRESH_SECRET: dev_refresh_secret_not_for_production_0123456789
-      CORS_ORIGINS: http://localhost:3001,http://localhost:3002
+      CORS_ORIGINS: http://localhost:3001,http://localhost:3002,http://localhost:8081
       ADMIN_EMAIL: admin@example.com
       ADMIN_PASSWORD: dev_admin_password_change_me
     depends_on:
