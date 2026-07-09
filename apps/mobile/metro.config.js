@@ -19,11 +19,10 @@ config.resolver.unstable_enablePackageExports = true;
 // outside a module"). Its CJS build uses process.env instead.
 config.resolver.unstable_conditionNames = ['require', 'react-native'];
 
-// Force a single, version-correct React/React-DOM instance. The hoisted root has
-// react@18.3.1 but react-dom@19 (from web/admin); react-hook-form also nests its
-// own react. Resolving both from THIS app's dir collapses them to one instance
-// each and picks apps/mobile's nested react-dom@18.3.1 (matching react@18.3.1),
-// avoiding "Invalid hook call" / ReactDOM-19-vs-React-18 ("reading 'S'") crashes.
+// Force a single React/React-DOM instance. The hoisted root React (19.2, shared
+// with web/admin) differs from Expo SDK 54's pinned react@19.1, and react-hook-form
+// nests its own copy. Resolving both from THIS app's dir collapses them to the one
+// nested 19.1 instance, avoiding "Invalid hook call" from duplicate React copies.
 const isReactPkg = (name) =>
   name === 'react' ||
   name === 'react-dom' ||

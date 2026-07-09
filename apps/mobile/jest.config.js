@@ -4,9 +4,10 @@ module.exports = {
   // e2e/ holds Playwright specs (run via `test:e2e`), not Jest suites.
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/e2e/', '<rootDir>/dist/'],
   setupFiles: ['<rootDir>/jest.setup.ts'],
+  setupFilesAfterEnv: ['<rootDir>/jest.setup-after-env.ts'],
   moduleNameMapper: {
-    // Force a single React 18.3 instance from THIS app's nested copy (the hoisted
-    // root is React 19 for web/admin; react-hook-form also nests its own copy) —
+    // Force a single React instance from THIS app's nested copy (Expo SDK 54 pins
+    // react@19.1; the hoisted root is 19.2; react-hook-form also nests its own) —
     // otherwise "useRef of null" / version mismatch under the test renderer.
     '^react$': '<rootDir>/node_modules/react',
     '^react/(.*)$': '<rootDir>/node_modules/react/$1',
