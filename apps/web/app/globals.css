@@ -1,3 +1,33 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  :focus-visible {
+    outline: 2px solid theme('colors.accent.DEFAULT');
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  /* Signature: a precision "ruler" tick rule. */
+  .ruler {
+    height: 8px;
+    background-image: repeating-linear-gradient(
+      to right,
+      theme('colors.hairline') 0,
+      theme('colors.hairline') 1px,
+      transparent 1px,
+      transparent 8px
+    );
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}

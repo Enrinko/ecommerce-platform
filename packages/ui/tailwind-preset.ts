@@ -1,16 +1,23 @@
 import type { Config } from 'tailwindcss';
 
-// Shared design tokens for web (and later admin). Apps extend this preset.
+// "Measured" — a precision-instrument identity for an everyday-tech shop.
 const preset = {
   theme: {
     extend: {
       colors: {
-        brand: {
-          DEFAULT: '#4f46e5',
-          fg: '#ffffff',
-        },
+        paper: '#EFEEE9',
+        surface: '#FFFFFF',
+        ink: '#17171B',
+        graphite: '#70707A',
+        hairline: '#DAD8D1',
+        accent: { DEFAULT: '#2440F0', ink: '#FFFFFF' },
       },
-      borderRadius: { md: '0.5rem' },
+      fontFamily: {
+        display: ['var(--font-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['var(--font-body)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['var(--font-mono)', 'ui-monospace', 'monospace'],
+      },
+      borderRadius: { sm: '2px', md: '4px' },
     },
   },
 } satisfies Partial<Config>;
