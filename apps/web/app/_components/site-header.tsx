@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { listCategories } from '@repo/api-client';
 import { catalogHref } from '@/lib/catalog-params';
 import { Ruler } from './ruler';
+import { HeaderAccount } from './header-account';
 
 export async function SiteHeader() {
   const categories = await listCategories().catch(() => []);
@@ -24,6 +25,7 @@ export async function SiteHeader() {
           <Link href="/products" className="font-medium text-ink hover:text-accent">
             Catalog
           </Link>
+          <HeaderAccount />
         </nav>
       </div>
       <Ruler />

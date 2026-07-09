@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { ApiError, getProduct, listReviews } from '@repo/api-client';
 import { Price, Rating } from '@repo/ui';
 import { ReviewList } from '@/app/_components/review-list';
+import { AddToCart } from '@/app/_components/add-to-cart';
 
 export const dynamic = 'force-dynamic';
 
@@ -63,6 +64,9 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
           </div>
           <Price cents={product.priceCents} currency={product.currency} className="mt-4 block text-xl" />
           <p className="mt-4 text-graphite">{product.description}</p>
+          <div className="mt-6">
+            <AddToCart product={product} />
+          </div>
         </div>
       </div>
 
