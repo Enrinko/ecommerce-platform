@@ -1,0 +1,8 @@
+node_modules/
+.expo/
+dist/
+web-build/
+test-results/
+playwright-report/
+*.log
+expo-env.d.ts

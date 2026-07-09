@@ -10,5 +10,14 @@
     "test": "turbo run test",
     "dev": "turbo run dev"
   },
-  "devDependencies": { "turbo": "^2.1.0" }
+  "devDependencies": {
+    "turbo": "^2.1.0",
+    "react": "19.2.7",
+    "react-dom": "19.2.7"
+  },
+  "pnpm": {
+    "overrides": {
+      "zustand>react": "19.2.7"
+    }
+  }
 }
