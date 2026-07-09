@@ -28,6 +28,9 @@ export default defineConfig({
       url: 'http://localhost:8081',
       timeout: 180_000,
       reuseExistingServer: !isCI,
+      // Enables the localStorage-backed refresh-token path for the web E2E build
+      // only (gated in lib/auth.ts); production web never persists the token.
+      env: { EXPO_PUBLIC_E2E: '1' },
     },
   ],
 });
