@@ -14,6 +14,10 @@ jest.mock('@repo/api-client', () => {
   };
 });
 
+jest.mock('@/lib/cart', () => ({
+  mergeGuestCartIntoServer: jest.fn().mockResolvedValue(undefined),
+}));
+
 import * as SecureStore from 'expo-secure-store';
 import { AuthProvider, useAuth } from '@/components/auth-provider';
 
