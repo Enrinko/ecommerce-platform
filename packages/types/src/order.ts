@@ -11,3 +11,16 @@ export type CreateOrderInput = z.infer<typeof createOrderInput>;
 
 export const updateOrderStatusInput = z.object({ status: orderStatus });
 export type UpdateOrderStatusInput = z.infer<typeof updateOrderStatusInput>;
+
+// Single source of truth for the order lifecycle (server enforces; UI hints).
+export const orderTransitions: Record<OrderStatusValue, OrderStatusValue[]> = {
+  PENDING: ['PAID', 'CANCELLED'],
+  PAID: ['SHIPPED', 'CANCELLED'],
+  SHIPPED: ['DELIVERED'],
+  DELIVERED: [],
+  CANCELLED: [],
+};
+
+export function nextStatuses(status: OrderStatusValue): OrderStatusValue[] {
+  return orderTransitions[status];
+}
