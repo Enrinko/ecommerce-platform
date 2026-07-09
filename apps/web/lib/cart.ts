@@ -4,6 +4,10 @@ import { authed, getAccessToken } from './auth-client';
 import { useGuestCart } from './guest-cart';
 
 export async function mergeGuestCartIntoServer(accessToken: string): Promise<void> {
+  // The persisted store hydrates from localStorage asynchronously after a fresh
+  // page load; wait for it so the merge sees the latest guest cart, not an empty
+  // pre-hydration snapshot.
+  await useGuestCart.persist.rehydrate();
   const { items, clear } = useGuestCart.getState();
   for (const line of items) {
     await addCartItem({ productId: line.productId, qty: line.qty }, { accessToken });

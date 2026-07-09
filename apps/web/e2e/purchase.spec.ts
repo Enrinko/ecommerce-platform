@@ -7,6 +7,8 @@ test('guest adds to cart, registers, and checks out', async ({ page }) => {
   // items can be zero-stock test artifacts, so target a seeded slug directly).
   await page.goto('/products/usb-c-cable');
   await page.getByRole('button', { name: /add to cart/i }).click();
+  // Ensure the guest add persisted before navigating away.
+  await expect(page.getByRole('link', { name: /cart \[1\]/i })).toBeVisible();
 
   // Register (guest cart merges into the server cart on login).
   await page.goto('/register');
