@@ -10,6 +10,8 @@ jest.mock('@/lib/catalog', () => ({
   useProduct: (...a: unknown[]) => mockUseProduct(...a),
   useReviews: (...a: unknown[]) => mockUseReviews(...a),
 }));
+// AddToCart pulls in auth/cart context; this screen test only cares about details.
+jest.mock('@/components/add-to-cart', () => ({ AddToCart: () => null }));
 
 import ProductScreen from '@/app/(tabs)/shop/[slug]';
 
