@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "Measured",
+    "slug": "measured-mobile",
+    "scheme": "measured",
+    "version": "0.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "web": { "bundler": "metro", "output": "single" },
+    "plugins": ["expo-router"],
+    "experiments": { "typedRoutes": false }
+  }
+}
