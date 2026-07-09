@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import type { Metadata } from 'next';
 import { Space_Grotesk, Inter, IBM_Plex_Mono } from 'next/font/google';
 import { Providers } from './providers';
+import { SiteHeader } from './_components/site-header';
 import './globals.css';
 
 const display = Space_Grotesk({ subsets: ['latin'], variable: '--font-display', display: 'swap' });
@@ -22,7 +23,15 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" className={`${display.variable} ${body.variable} ${mono.variable}`}>
       <body className="min-h-dvh bg-paper font-body text-ink antialiased">
-        <Providers>{children}</Providers>
+        <Providers>
+          <SiteHeader />
+          {children}
+          <footer className="mt-16 border-t border-hairline">
+            <div className="mx-auto max-w-6xl px-4 py-8 font-mono text-xs uppercase tracking-widest text-graphite">
+              Measured — a portfolio storefront
+            </div>
+          </footer>
+        </Providers>
       </body>
     </html>
   );
