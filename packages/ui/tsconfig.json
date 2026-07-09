@@ -1,0 +1,4 @@
+{
+  "extends": "@repo/config/tsconfig.react.json",
+  "include": ["src/**/*.ts", "src/**/*.tsx", "tailwind-preset.ts", "vitest.setup.ts"]
+}
