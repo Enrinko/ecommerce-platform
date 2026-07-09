@@ -3,6 +3,7 @@ import type {
   CreateProductInput,
   OrderStatusValue,
   PageQuery,
+  Paginated,
   Product,
   UpdateCategoryInput,
   UpdateProductInput,
@@ -49,4 +50,16 @@ export function updateOrderStatus(
   opts?: RequestOptions,
 ): Promise<Order> {
   return apiFetch<Order>(`/admin/orders/${id}/status`, json('PATCH', { status }, opts));
+}
+
+// Admin catalog reads: return products of ANY status (incl. inactive), unlike
+// the public listProducts/getProduct which filter isActive:true.
+export function listAdminProducts(
+  query: Partial<PageQuery> = {},
+  opts?: RequestOptions,
+): Promise<Paginated<Product>> {
+  return apiFetch<Paginated<Product>>(`/admin/products${toQuery(query)}`, opts);
+}
+export function getAdminProduct(id: string, opts?: RequestOptions): Promise<Product> {
+  return apiFetch<Product>(`/admin/products/${id}`, opts);
 }

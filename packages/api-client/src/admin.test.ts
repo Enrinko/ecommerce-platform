@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { createProduct, listAllOrders, updateOrderStatus } from './index';
+import {
+  createProduct,
+  getAdminProduct,
+  listAdminProducts,
+  listAllOrders,
+  updateOrderStatus,
+} from './index';
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -35,5 +41,17 @@ describe('admin api-client', () => {
     expect(url).toBe('http://api/admin/orders/o1/status');
     expect(init.method).toBe('PATCH');
     expect(JSON.parse(init.body as string)).toEqual({ status: 'SHIPPED' });
+  });
+
+  it('reads the admin product list and a single product', async () => {
+    const spy = capture(200, { items: [], total: 0, page: 3, limit: 50 });
+    await listAdminProducts({ page: 3, limit: 50 }, { baseUrl: 'http://api', accessToken: 'tok' });
+    const [url, init] = spy.mock.calls[0] as [string, RequestInit];
+    expect(url).toBe('http://api/admin/products?page=3&limit=50');
+    expect(new Headers(init.headers).get('authorization')).toBe('Bearer tok');
+
+    const spy2 = capture(200, { id: 'p1', isActive: false });
+    await getAdminProduct('p1', { baseUrl: 'http://api' });
+    expect(spy2.mock.calls[0][0]).toBe('http://api/admin/products/p1');
   });
 });
