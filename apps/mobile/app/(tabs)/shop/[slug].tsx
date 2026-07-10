@@ -27,7 +27,7 @@ export default function ProductScreen() {
   const p = product.data;
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <ScrollView style={{ backgroundColor: '#EFEEE9' }} contentContainerStyle={{ padding: 16 }}>
       <Text style={{ fontSize: 22, fontWeight: '700', color: '#17171B' }}>{p.title}</Text>
       <View style={{ marginTop: 8 }}>
         <Price cents={p.priceCents} currency={p.currency} style={{ fontSize: 18 }} />

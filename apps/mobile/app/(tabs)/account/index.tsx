@@ -11,7 +11,7 @@ function Account() {
   const orders = useMyOrders();
 
   return (
-    <ScrollView contentContainerStyle={{ padding: 16 }}>
+    <ScrollView style={{ backgroundColor: '#EFEEE9' }} contentContainerStyle={{ padding: 16 }}>
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text style={{ fontFamily: 'monospace', fontSize: 13, color: '#70707A' }}>
           {user?.email}
