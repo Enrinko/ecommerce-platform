@@ -41,7 +41,7 @@ export default function CartScreen() {
   const remove = authed ? (id: string) => m.remove.mutate(id) : (id: string) => guest.remove(id);
 
   return (
-    <ScrollView>
+    <ScrollView style={{ flex: 1, backgroundColor: '#EFEEE9' }}>
       <CartView
         lines={lines}
         onSetQty={setQty}
