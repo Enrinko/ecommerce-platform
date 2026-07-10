@@ -7,6 +7,10 @@
     "orientation": "portrait",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "android": {
+      "package": "com.measured.mobile",
+      "versionCode": 1
+    },
     "web": {
       "bundler": "metro",
       "output": "single"
