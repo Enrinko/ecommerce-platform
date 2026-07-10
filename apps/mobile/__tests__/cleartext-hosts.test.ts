@@ -1,6 +1,9 @@
 // Unit tests for the Android cleartext allowlist logic. The security-critical
 // guarantee: an https API must NOT widen the cleartext allowlist, so release
 // builds pointed at a real endpoint keep plain-HTTP blocked.
+// The helper is a CJS Node module shared with the Expo config plugin; require it
+// directly rather than pulling it through the app's ESM/TS module graph.
+// eslint-disable-next-line @typescript-eslint/no-require-imports
 const { cleartextHosts, buildNetworkSecurityConfig } = require('../plugins/cleartext-hosts');
 
 const DEV_DEFAULTS = ['localhost', '127.0.0.1', '10.0.2.2'];
