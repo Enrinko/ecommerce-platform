@@ -6,8 +6,8 @@ module.exports = {
   setupFiles: ['<rootDir>/jest.setup.ts'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup-after-env.ts'],
   moduleNameMapper: {
-    // Force a single React instance from THIS app's nested copy (Expo SDK 54 pins
-    // react@19.1; the hoisted root is 19.2; react-hook-form also nests its own) —
+    // Force a single React instance from THIS app's nested copy (Expo SDK 57 pins
+    // react@19.2.3; the hoisted root is 19.2.7; react-hook-form nests its own) —
     // otherwise "useRef of null" / version mismatch under the test renderer.
     '^react$': '<rootDir>/node_modules/react',
     '^react/(.*)$': '<rootDir>/node_modules/react/$1',
