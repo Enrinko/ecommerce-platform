@@ -2,7 +2,10 @@ import { render, screen } from '@testing-library/react-native';
 import type { ProductDetail, ReviewList } from '@repo/api-client';
 
 let mockParams: Record<string, string> = { slug: 'usb-c-cable' };
-jest.mock('expo-router', () => ({ useLocalSearchParams: () => mockParams }));
+jest.mock('expo-router', () => ({
+  useLocalSearchParams: () => mockParams,
+  Stack: { Screen: () => null },
+}));
 
 const mockUseProduct = jest.fn();
 const mockUseReviews = jest.fn();

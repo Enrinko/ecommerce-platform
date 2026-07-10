@@ -15,6 +15,8 @@ export default [
       'jest.config.js',
       // jest.mock factories must use require() (hoisting), not import.
       'jest.setup.ts',
+      // Expo config plugins are Node CommonJS — Expo's loader require()s them.
+      'plugins/**',
     ],
   },
 ];

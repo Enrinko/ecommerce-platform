@@ -18,7 +18,8 @@
     "plugins": [
       "expo-router",
       "expo-secure-store",
-      "expo-status-bar"
+      "expo-status-bar",
+      "./plugins/with-cleartext-dev-hosts"
     ],
     "experiments": {
       "typedRoutes": false

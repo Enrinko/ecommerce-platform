@@ -9,7 +9,7 @@ import {
   register as registerApi,
 } from '@repo/api-client';
 import type { LoginInput, MeResponse, RegisterInput } from '@repo/types';
-import { setAccessToken } from '@/lib/auth-client';
+import { authed, setAccessToken } from '@/lib/auth-client';
 import { mergeGuestCartIntoServer } from '@/lib/cart';
 
 type Status = 'loading' | 'authed' | 'guest';
@@ -63,7 +63,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     login: async (input) => establish(await loginApi(input)),
     register: async (input) => establish(await registerApi(input)),
     logout: async () => {
-      await logoutApi({ accessToken: undefined }).catch(() => undefined);
+      // /auth/logout is JwtAuthGuard-protected — call it through `authed` so it
+      // carries the access token (and refreshes on 401). Without a valid token it
+      // 401s, the server never clears the refresh cookie, and a reload's silent
+      // refresh revives the session.
+      await authed((opts) => logoutApi(opts)).catch(() => undefined);
       setAccessToken(null);
       setUser(null);
       setStatus('guest');

@@ -1,9 +1,13 @@
-import { Text, type ColorValue } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
+import type { ColorValue } from 'react-native';
 
+type IconName = keyof typeof Ionicons.glyphMap;
 const tabIcon =
-  (emoji: string) =>
-  ({ color }: { color: ColorValue }) => <Text style={{ fontSize: 20, color }}>{emoji}</Text>;
+  (name: IconName) =>
+  ({ color, size }: { color: ColorValue; size: number }) => (
+    <Ionicons name={name} color={color} size={size} />
+  );
 
 export default function TabsLayout() {
   return (
@@ -18,9 +22,18 @@ export default function TabsLayout() {
         tabBarLabelStyle: { fontSize: 11 },
       }}
     >
-      <Tabs.Screen name="shop/index" options={{ title: 'Shop', tabBarIcon: tabIcon('🛍') }} />
-      <Tabs.Screen name="cart" options={{ title: 'Cart', tabBarIcon: tabIcon('🛒') }} />
-      <Tabs.Screen name="account/index" options={{ title: 'Account', tabBarIcon: tabIcon('👤') }} />
+      <Tabs.Screen
+        name="shop"
+        options={{ title: 'Shop', headerShown: false, tabBarIcon: tabIcon('storefront-outline') }}
+      />
+      <Tabs.Screen
+        name="cart"
+        options={{ title: 'Cart', tabBarIcon: tabIcon('cart-outline') }}
+      />
+      <Tabs.Screen
+        name="account/index"
+        options={{ title: 'Account', tabBarIcon: tabIcon('person-outline') }}
+      />
     </Tabs>
   );
 }
